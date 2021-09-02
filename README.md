@@ -3,7 +3,8 @@ Ok great. It is going to be a fairly simple script.
 The framework that we will use is Typer: https://typer.tiangolo.com/
 
 I want to create a JSON:
-```[
+```
+[
 	[
 		{"id": 1,"full_name":"Firstname Lastname"},
 		{"id": 2,"full_name":"Firstname Lastname"},
@@ -24,14 +25,16 @@ I want to create a JSON:
 		{"id": 15,"full_name":"Firstname Lastname"},
 		{"id": 16,"full_name":"Firstname Lastname"},
 	],
-]```
+]
+```
 
 The ID's will not be sequential, but the. PLD groups will be created like this:
 
 In the CLI command I can supply the projectId and the cohort id.
 
 I will call the intranet API to get the student projects: I will need the project with the id given in the CLI
-```{
+```
+{
   "items": [
     {
       "id": 0,
@@ -45,9 +48,11 @@ I will call the intranet API to get the student projects: I will need the projec
   "count": 0,
   "next": "string",
   "prev": "string"
-}```
+}
+```
 I've already created a script that does the calling. We can reuse that - the output for function will be:
-```[
+```
+[
       {
       "id": 0,
       "name": "string",
@@ -56,7 +61,8 @@ I've already created a script that does the calling. We can reuse that - the out
       "started_at": "2021-09-02",
       "ended_at": "2021-09-02"
       }
-]```
+]
+```
 I will create PLD groups based on, 1. their squad and 2. the score after the first deadline for that project.
 
 I have an input CSV - that has all YL's with their squads and cohorts and HolbertonID
