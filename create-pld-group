@@ -3,18 +3,71 @@
 """ create automaticaly pld-groups """
 import typer
 from dotenv import load_dotenv
+import logging
+import os
+import sys
+from intranet import IntranetClient
+import csv
+
+stdoutLogger = logging.getLogger()
+stdoutLogger.setLevel(logging.DEBUG)
+stdoutHandler = logging.StreamHandler(sys.stdout)
+stdoutLogger.addHandler(stdoutHandler)
 
 load_dotenv()
 
 App = typer.Typer()
 
+
 @App.command()
-def basecommand(project_id: int, cohort_id: int):
-    """  
+def basecommand(project_id: int, cohort: str):
+    """
     Get the project id and the cohort id 
     to collect data and to create pld-groups 
     """
-    print(f'chohort Id: {cohort_id}, projectId: {project_id}')
+    print(f'cohort: {cohort}, projectId: {project_id}')
+
+    client = IntranetClient(os.environ.get('HBTN_KEY'), os.environ.get('HBTN_SECRET'))
+
+    squads = {}
+    groups = []
+
+    with open("yls.csv") as csv_file:
+        reader = csv.DictReader(csv_file)
+        for i, yl in reader:
+            if yl.cohort == cohort:
+                project = list(filter(
+                    lambda el: el.id == project_id, client.get_student_projects(yl['HBTN_ID']))
+                )[0]
+
+                if project is None:
+                    continue
+
+                if squads[yl.squad] is None:
+                    squads[yl.squad] = []
+
+                yl.project_score = project.score
+
+                squads[yl.squad].append(yl)
+
+        reader = None
+
+    # supposedly we would have a simple object squads with keys as squad number and value a list of yl with
+    # project_score we would want to yls from each squad divided based on their scores, given an nice distribution of
+    # scores among the groups. each squad is in between 22 to 29 members (possible in future 21 or 30 is possible)
+
+    # 22 would make 2 groups of 7 and 1 of 8
+    # 23 would make 1 group of 7 and 2 of 8
+    # 24 would make 3 groups of 8
+    # 25 would make 2 groups of 8 and 1 of 9
+    # 26 would make 1 group of 8 and 2 of 9
+    # 27 would make 3 groups of of 9
+    # 28 would make 4 groups of 7
+    # 29 would make 3 groups of 7 and 1 of 8
+
+
+
+
 
 if __name__ == "__main__":
     App()
