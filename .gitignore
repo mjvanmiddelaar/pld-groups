@@ -1,3 +1,5 @@
 .env
 .idea
 /venv
+2106.csv
+*.json

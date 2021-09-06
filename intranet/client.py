@@ -12,7 +12,7 @@ class IntranetClient:
         self.secret = secret
 
     def get_student_projects(self, student_id):
-        return self.get('student/{}/projects'.format(student_id))
+        return self.get('students/{}/projects'.format(student_id))
 
     def get(self, path, cursor=None):
         url = "https://alx-intranet.hbtn.io/api/v1/" + path
@@ -39,7 +39,7 @@ class IntranetClient:
         headers = {'HBTN_TOKEN': token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
         result = None
         trial = 0
-        while result is None:
+        while result is None and trial < 3:
             try:
                 result = requests.get(url, params=urllib.parse.urlencode(request['params'], True, safe="="),
                                       headers=headers).json()
