@@ -22,8 +22,8 @@ App = typer.Typer()
 
 
 def get_score(yl):
-    if yl["project_score"] is not None:
-        return yl["project_score"]
+    if yl["average"] is not None:
+        return yl["average"]
     return 0
 
 
@@ -40,7 +40,7 @@ def basecommand(project_id: int, cohort: str, test: bool = typer.Argument(False)
     """
     print(f'cohort: {cohort}, projectId: {project_id}')
     if not test:
-        client = IntranetClient(os.environ.get('HBTN_KEY'), os.environ.get('HBTN_SECRET'))
+        client = IntranetClient(os.environ.get('HBTN_KEY'), os.environ.get('HBTN_SECRET'), os.environ.get('HBTN_URL'))
     else:
         client = FakeIntranetClient()
 
@@ -50,19 +50,14 @@ def basecommand(project_id: int, cohort: str, test: bool = typer.Argument(False)
     with open("{}.csv".format(cohort)) as csv_file:
         reader = csv.DictReader(csv_file)
         for yl in reader:
-            projects = client.get_student_projects(yl['HBTN_ID'])
-            current = None
-            for project in projects:
-                if project["id"] == project_id:
-                    current = project
+            intranet_yl = client.get_student(yl['HBTN_ID'])
 
-            if current is None:
-                continue
+            product = intranet_yl["product"]
+
+            yl['average'] = product['average']
 
             if not yl["Squad"] in squads:
                 squads[yl["Squad"]] = []
-
-            yl['project_score'] = project['score']
 
             squads[yl["Squad"]].append(yl)
 
@@ -80,15 +75,15 @@ def basecommand(project_id: int, cohort: str, test: bool = typer.Argument(False)
             if not group_name in squad_groups:
                 squad_groups[group_name] = []
 
-            appendyl = {
+            append_yl = {
                 "id": yl["HBTN_ID"],
                 "full_name": yl["Full Name"],
             }
 
             if test:
-                appendyl['score'] = yl['project_score']
+                append_yl['average'] = yl['average']
 
-            squad_groups[group_name].append(appendyl)
+            squad_groups[group_name].append(append_yl)
             count = count + 1
 
         for index, group in squad_groups.items():

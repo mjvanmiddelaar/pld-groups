@@ -7,15 +7,27 @@ import time
 
 
 class IntranetClient:
-    def __init__(self, key: str, secret: str):
+    def __init__(self, key: str, secret: str, url: str):
         self.key = key
         self.secret = secret
+        self.url = url
 
     def get_student_projects(self, student_id):
         return self.get('students/{}/projects'.format(student_id))
 
+    def get_student(self, student_id):
+        return self.get('students/{}'.format(student_id))
+
+    def get_list(self, path, cursor=None):
+        result = self.get(path, cursor)
+        items = result['items']
+        if result['next'] is not None:
+            items += self.get_list(path, result['next'])
+
+        return items
+
     def get(self, path, cursor=None):
-        url = "https://alx-intranet.hbtn.io/api/v1/" + path
+        url = self.url + path
         credentials = {'key': self.key, 'secret': self.secret}
         timestamp = int(time.time())
 
@@ -41,14 +53,8 @@ class IntranetClient:
         trial = 0
         while result is None and trial < 3:
             try:
-                result = requests.get(url, params=urllib.parse.urlencode(request['params'], True, safe="="),
-                                      headers=headers).json()
+                return requests.get(url, params=urllib.parse.urlencode(request['params'], True, safe="="),
+                                    headers=headers).json()
             except:  # try smaller except (even ctrl-c is now caught!)
                 trial = trial + 1
                 print("Something went wrong: {}".format(trial))
-
-        items = result['items']
-        if result['next'] is not None:
-            items += self.get(path, result['next'])
-
-        return items

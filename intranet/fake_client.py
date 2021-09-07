@@ -7,3 +7,9 @@ class FakeIntranetClient:
             "id": 19,
             "score": random.randint(50, 100)
         }]
+
+    def get_student(self, student_id):
+        return [{
+            "id": 19,
+            "score": random.randint(50, 100)
+        }]
